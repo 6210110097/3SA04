@@ -1,13 +1,14 @@
 import React from 'react'
-import { Text } from 'react-native'
+import { Text, View } from 'react-native'
 
 export default function Forecast(props){
+
     return(
-        <view>
+        <View>
             <Text>{props.main}</Text>
             <Text>{props.description}</Text>
             <Text>{props.temp}</Text>
             <Text>°C</Text>
-        </view>
-    )
+        </View>
+    );
 }
