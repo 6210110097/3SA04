@@ -1,68 +1,67 @@
-import React from 'react'
-import { FlatList , View , Text, StyleSheet, TouchableHighlight, ImageBackground} from 'react-native'
-import { useNavigation } from '@react-navigation/core'
+import React, { useState } from "react"
+import { ImageBackground, Text, StyleSheet,View } from 'react-native'
+import Forecast from "./Forecast"
+import { useEffect } from "react"
 
-const availableZipItems = [
-    { place: 'Hatyai', code: '90110' },
-    { place: 'Trang', code: '92000' },
-    { place: 'Chiangmai', code: '50000' },
-    { place: 'Khonkaen', code: '40000' },
-    { place: 'Chonburi', code: '20000' },
-   ]
-   
+export default function Weather(props) {
+    
+    
+    useEffect(() => {
+        console.log(`fetching data with zipCode = ${props.zipCode}`)
+        if (props.zipCode) {
+            fetch(`http://api.openweathermap.org/data/2.5/weather?q=${props.zipCode},th&units=metric&APPID=28c099ab9b2578c63715272399321025`)
+                .then((response) => response.json())
+                .then((json) => {
+                    setForecastInfo({
+                        main: json.weather[0].main,
+                        description: json.weather[0].description,
+                        temp: json.main.temp
+                    });
+                })
+                .catch((error) => {
+                    console.warn(error);
+                });
+            }
+        }, [props.zipCode])
 
-   const ZipItem = ({place, code, navigation}) => (
-        <TouchableHighlight  onPress= {() => {
-            navigation.navigate('Weather',{zipCode: code})
-        }}>
-            <View style = {styles.zipItem} > 
-                 <Text style = {styles.zipPlace} >{place}</Text>
-                 <Text style = {styles.zipCode}>{code}</Text>
-            </View>
-        </TouchableHighlight>
-)
-   
-
-export default function ZipCodeScreen(){
-    const navigation = useNavigation()
+    const [forecastInfo, setForecastInfo] = useState({
+        main : '-',
+        deecription : '-',
+        temp: 0
+    })
     return (
-        <ImageBackground source={require('../cloud.jpg')} style={styles.backdrop}>
-        <FlatList
-            data = {availableZipItems}
-            keyExtractor = {item => item.code}
-            renderItem =  {({item}) => <ZipItem {...item}  navigation = {navigation}/> }
-        />
-        </ImageBackground> 
-    )
+        <View>
+            <ImageBackground source={require('../cloud.jpg')} style={styles.backdrop}>
+                <View style={styles.zipCode}>
+                <Text style={styles.zipCode_code}>Zip Code {props.zipCode}</Text>
+                <Forecast {...forecastInfo} />
+                </View>
+            </ImageBackground>
+        </View>
+ );
 }
 
-
 const styles = StyleSheet.create({
-    zipItem:{
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        marginTop:20,
-        marginLeft: 30,
-        marginRight:30,
-        padding: 10  
-    },
-    zipPlace:{
-        textAlign: 'center',
-        fontWeight: 'bold',
-        fontSize: 15,
-        color: '#0E0301'
+    backdrop: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: '100%',
+        height: '100%'
     },
     zipCode: {
-        textAlign: 'center',
+        top: 200,
+        color: '#fff',
+        fontSize: 100,
         fontWeight: 'bold',
-        fontSize: 15,
-        color:'#0E0301'
+        textShadowColor: 'black',
+        textShadowRadius: 5,
     },
-    backdrop: {
-        width: '100%',
-        height: '100%',
-    }
-
+    zipCode_code: {
+        top: -180,
+        color: '#fff',
+        fontSize: 60,
+        fontWeight: 'bold',
+        textShadowColor: 'black',
+        textShadowRadius: 10,
+    },
 })
